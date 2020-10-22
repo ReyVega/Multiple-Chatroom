@@ -32,6 +32,7 @@ void almacenarMensajeONombre (char* array, int length) {
 
 void catchCtrlCyExit(int signal) {
     bandera = 1;
+	printf("\n");
 }
 
 void manejadorDeEnvioMsjs() {
