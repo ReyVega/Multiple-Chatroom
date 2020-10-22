@@ -34,6 +34,26 @@ void str_overwrite_stdout() {
     fflush(stdout);
 }
 
+void enviarMensajeServer(char *mensaje) {
+	pthread_mutex_lock(&clientes_mutex);
+
+	for(int i = 0; i < CLIENTES_TOPE; i++) {
+		if(clientes[i]) {
+			write(clientes[i]->sockfd, mensaje, strlen(mensaje));
+		}
+	}
+
+	pthread_mutex_unlock(&clientes_mutex);
+}
+
+
+void catchCtrlC(int signal) {
+	char *mensajeByeGlobal = "Bye desde el servidor\n";
+	enviarMensajeServer(mensajeByeGlobal);
+	printf("\n");
+	exit(EXIT_SUCCESS);
+}
+
 void almacenarMsjONombre(char* array, int length) {
 	for (int i = 0; i < length; i++) { 
 		if (array[i] == '\n') {
@@ -41,14 +61,6 @@ void almacenarMsjONombre(char* array, int length) {
       		break;
     	}
   	}
-}
-
-void imprimirDireccionCliente(struct sockaddr_in addr){
-    printf("%d.%d.%d.%d",
-        addr.sin_addr.s_addr & 0xff,
-        (addr.sin_addr.s_addr & 0xff00) >> 8,
-        (addr.sin_addr.s_addr & 0xff0000) >> 16,
-        (addr.sin_addr.s_addr & 0xff000000) >> 24);
 }
 
 // Añadir clientes a la cola
@@ -169,7 +181,7 @@ int main(int argc, char **argv){
   	serv_addr.sin_port = htons(port);
 
   	// Ignorar señales pipe
-	signal(SIGPIPE, SIG_IGN);
+	signal(SIGINT, catchCtrlC);
 
 	if(setsockopt(listenfd, SOL_SOCKET,(SO_REUSEPORT | SO_REUSEADDR),(char*)&option,sizeof(option)) < 0){
 		perror("ERROR");
@@ -197,7 +209,6 @@ int main(int argc, char **argv){
 		// Checar si el numero de clientes se alcanzó
 		if((contadorClientes + 1) == CLIENTES_TOPE){
 			printf("Tope de clientes alcanzado");
-			imprimirDireccionCliente(cli_addr);
 			printf(":%d\n", cli_addr.sin_port);
 			close(connfd);
 			continue;
