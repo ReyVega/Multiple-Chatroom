@@ -86,7 +86,7 @@ void enviarMensaje(char *mensaje, int uid){
 		if(clientes[i]){
 			if(clientes[i]->uid != uid){
 				if(write(clientes[i]->sockfd, mensaje, strlen(mensaje)) < 0){
-					perror("ERROR: write to descriptor failed");
+					perror("ERROR");
 					break;
 				}
 			}
@@ -106,11 +106,12 @@ void *manejadorCliente(void *arg){
 
 	// Manejar nombre
 	if(recv(cli->sockfd, nombre, 32, 0) <= 0 || strlen(nombre) <  2 || strlen(nombre) >= 32-1){
-		printf("No se ingreso nombre.\n");
+		printf("No se ingreso nombre o excedio el limite.\n");
 		banderaSalida = 1;
 	} else{
 		strcpy(cli->nombre, nombre);
-		sprintf(buff_out, ">%s conectado\n", cli->nombre);
+		printf("> ");
+		sprintf(buff_out, "%s conectado\n", cli->nombre);
 		printf("%s", buff_out);
 		enviarMensaje(buff_out, cli->uid);
 	}
@@ -126,17 +127,18 @@ void *manejadorCliente(void *arg){
 		if (receive > 0){
 			if(strlen(buff_out) > 0){
 				enviarMensaje(buff_out, cli->uid);
-
 				almacenarMsjONombre(buff_out, strlen(buff_out));
-				printf("> %s\n", buff_out, cli->nombre);
+				printf("> ");
+				printf("%s\n", buff_out, cli->nombre);
 			}
-		} else if (receive == 0 || strcmp(buff_out, "exit") == 0){
-			sprintf(buff_out, ">%s desconectado\n", cli->nombre);
+		} else if (receive == 0 || strcmp(buff_out, "bye") == 0 || strcmp(buff_out, "exit") == 0){
+			printf("> ");
+			sprintf(buff_out, "%s desconectado\n", cli->nombre);
 			printf("%s", buff_out);
 			enviarMensaje(buff_out, cli->uid);
 			banderaSalida = 1;
 		} else {
-			printf("ERROR: -1\n");
+			printf("Solo puede escribirs msjs de 250 caracteres:\n");
 			banderaSalida = 1;
 		}
 		bzero(buff_out, BUFFER_SZ);
