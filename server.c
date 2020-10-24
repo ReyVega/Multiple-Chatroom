@@ -11,7 +11,7 @@
 #include<pthread.h>
 
 
-#define BUFFER_SZ 2048
+#define TAMANO_BUFFER 2048
 #define CLIENTES_TOPE 5
 
 static int uid = 10;
@@ -109,7 +109,7 @@ void enviarMensaje(char *mensaje, int uid){
 
 // Manejar las comunicaciones del cliente
 void *manejadorCliente(void *arg){
-	char buff_out[BUFFER_SZ];
+	char buff_out[TAMANO_BUFFER];
 	char nombre[32];
 	int banderaSalida = 0;
 
@@ -128,14 +128,14 @@ void *manejadorCliente(void *arg){
 		enviarMensaje(buff_out, cli->uid);
 	}
 
-	bzero(buff_out, BUFFER_SZ);
+	bzero(buff_out, TAMANO_BUFFER);
 
 	while(1){
 		if (banderaSalida) {
 			break;
 		}
 
-		int receive = recv(cli->sockfd, buff_out, BUFFER_SZ, 0);
+		int receive = recv(cli->sockfd, buff_out, TAMANO_BUFFER, 0);
 		if (receive > 0){
 			if(strlen(buff_out) > 0){
 				enviarMensaje(buff_out, cli->uid);
@@ -153,7 +153,7 @@ void *manejadorCliente(void *arg){
 			printf("Solo puede escribirs msjs de 250 caracteres:\n");
 			banderaSalida = 1;
 		}
-		bzero(buff_out, BUFFER_SZ);
+		bzero(buff_out, TAMANO_BUFFER);
 	}
 
     // Borrar cliente de la cola y mejorar el rendimiento del hilo
