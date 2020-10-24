@@ -9,7 +9,7 @@
 #include<netinet/in.h>
 #include<arpa/inet.h>
 
-#define LENGTH 250
+#define LENGTH 2000
 
 // Variable globales
 int sockfd = 0;
@@ -43,8 +43,10 @@ void manejadorDeEnvioMsjs() {
   		iniciarChat();
     	fgets(mensaje, LENGTH, stdin);
     	almacenarMensajeONombre(mensaje, LENGTH);
-
-    	if(strcmp(mensaje, "exit") == 0 || strcmp(mensaje, "bye") == 0) {
+		
+		if(strlen(mensaje) > 250) {
+			printf("> Ha excedido el limite de 250 caracteres\n");
+		} else if(strcmp(mensaje, "exit") == 0 || strcmp(mensaje, "bye") == 0) {
 			break;
     	} else {
       		sprintf(buffer, "%s: %s\n", nombre, mensaje);

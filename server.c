@@ -156,7 +156,7 @@ void *manejadorCliente(void *arg){
 		bzero(buff_out, BUFFER_SZ);
 	}
 
-    // Borrar cliente del arrayeglo y mejorar el rendimiento del hilo
+    // Borrar cliente de la cola y mejorar el rendimiento del hilo
 	close(cli->sockfd);
   	removerCola(cli->uid);
   	free(cli);
