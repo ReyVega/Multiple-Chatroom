@@ -29,11 +29,6 @@ clientsStructure *clientes[CLIENTES_TOPE];
 
 pthread_mutex_t clientes_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-void str_overwrite_stdout() {
-    printf("\r%s", "> ");
-    fflush(stdout);
-}
-
 void enviarMensajeServer(char *mensaje) {
 	pthread_mutex_lock(&clientes_mutex);
 
@@ -150,7 +145,6 @@ void *manejadorCliente(void *arg){
 			enviarMensaje(buff_out, cli->uid);
 			banderaSalida = 1;
 		} else {
-			printf("Solo puede escribirs msjs de 250 caracteres:\n");
 			banderaSalida = 1;
 		}
 		bzero(buff_out, TAMANO_BUFFER);
@@ -180,7 +174,7 @@ int main(int argc, char **argv){
   	serv_addr.sin_addr.s_addr = inet_addr(ip);
   	serv_addr.sin_port = htons(port);
 
-  	// Ignorar señales pipe
+	// Catch Ctr-C
 	signal(SIGINT, catchCtrlC);
 
 	if(setsockopt(listenfd, SOL_SOCKET,(SO_REUSEPORT | SO_REUSEADDR),(char*)&option,sizeof(option)) < 0){
